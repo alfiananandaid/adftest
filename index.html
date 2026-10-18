@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ADF Enterprise Portal</title>
+    
+    <!-- Tailwind CSS (CDN Configured for Production Suppress Warning) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { corePlugins: { preflight: true } }
+    </script>
+    
+    <!-- SweetAlert2 & QR Code -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+
     <style>
         body { background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
@@ -73,7 +81,6 @@
                         Buat Pengajuan ADF
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <!-- Barcode Scanner -->
                         <div class="col-span-1 md:col-span-2">
                             <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Scan / Input SKU atau KLS</label>
                             <div class="flex gap-2">
@@ -84,21 +91,37 @@
                                 </button>
                             </div>
                         </div>
+                        
                         <div id="reader" class="hidden w-full col-span-1 md:col-span-2 rounded-2xl overflow-hidden bg-black shadow-inner h-64"></div>
                         
-                        <!-- Inputs Auto-fill -->
                         <div class="col-span-1 md:col-span-2">
                             <label class="text-xs font-semibold text-gray-500 mb-1 block">Deskripsi Produk</label>
                             <input type="text" id="desc" class="ios-input" disabled placeholder="Deskripsi Barang">
                         </div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">Department</label><input type="text" id="dept" class="ios-input" disabled placeholder="Department"></div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">Commodity</label><input type="text" id="commodity" class="ios-input" disabled placeholder="Commodity"></div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">Price</label><input type="number" id="price" class="ios-input font-mono" disabled placeholder="0"></div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">Qty</label><input type="number" id="qty" class="ios-input" placeholder="1" min="1" value="1"></div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">Proposal</label><select id="proposal" class="ios-input bg-white"></select></div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">Discount Amount (Rp)</label><input type="number" id="discountAmount" class="ios-input font-mono" placeholder="15000"></div>
-                        
-                        <!-- Info Caused By -->
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Department</label>
+                            <input type="text" id="dept" class="ios-input" disabled placeholder="Department">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Commodity</label>
+                            <input type="text" id="commodity" class="ios-input" disabled placeholder="Commodity">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Price</label>
+                            <input type="number" id="price" class="ios-input font-mono" disabled placeholder="0">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Qty</label>
+                            <input type="number" id="qty" class="ios-input" placeholder="1" min="1" value="1">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Proposal</label>
+                            <select id="proposal" class="ios-input bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Discount Amount (Rp)</label>
+                            <input type="number" id="discountAmount" class="ios-input font-mono" placeholder="15000">
+                        </div>
                         <div>
                             <label class="text-xs font-semibold text-gray-500 mb-1 block">Caused By</label>
                             <div class="flex gap-2">
@@ -108,12 +131,16 @@
                                 </button>
                             </div>
                         </div>
-                        <div><label class="text-xs font-semibold text-gray-500 mb-1 block">No Doc (LPPB/DO/SR)</label><input type="text" id="docNo" class="ios-input" placeholder="Opsional"></div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">No Doc (LPPB/DO/SR)</label>
+                            <input type="text" id="docNo" class="ios-input" placeholder="Opsional">
+                        </div>
                         
-                        <!-- Reason -->
-                        <div class="col-span-1 md:col-span-2"><label class="text-xs font-semibold text-gray-500 mb-1 block">Alasan</label><textarea id="reason" class="ios-input h-24 resize-none" placeholder="Tulis alasan lengkap..."></textarea></div>
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="text-xs font-semibold text-gray-500 mb-1 block">Alasan</label>
+                            <textarea id="reason" class="ios-input h-24 resize-none" placeholder="Tulis alasan lengkap..."></textarea>
+                        </div>
                         
-                        <!-- Photo Upload SVG -->
                         <div class="col-span-1 md:col-span-2">
                             <label class="text-xs font-semibold text-gray-500 mb-1 block">Upload Bukti Foto (Min 2, Max 3)</label>
                             <div class="relative border-2 border-dashed border-blue-300 bg-blue-50 rounded-2xl p-6 text-center hover:bg-blue-100 transition cursor-pointer">
@@ -145,7 +172,7 @@
                         </button>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="searchInput" onkeyup="applyFilters()" class="ios-input w-2/3 text-sm" placeholder="Cari SKU, Trans No, Deskripsi...">
+                        <input type="text" id="searchInput" onkeyup="applyFilters()" class="ios-input w-2/3 text-sm" placeholder="Cari SKU, Trans No...">
                         <select id="sortSLA" onchange="applyFilters()" class="ios-input w-1/3 text-sm bg-gray-50">
                             <option value="NEWEST">Terbaru</option>
                             <option value="SLA_DESC">SLA Terlama</option>
@@ -201,7 +228,7 @@
                     <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     ADF/--
                 </h3>
-                <button onclick="closeDetailModal()" class="bg-gray-200 text-gray-600 rounded-full p-2 hover:bg-gray-300">
+                <button onclick="closeDetailModal()" class="bg-gray-200 text-gray-600 rounded-full p-2 hover:bg-gray-300 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -214,8 +241,10 @@
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxy2WqYpi0sXo5Neud3Xelon2tHgHBTmqrNjy8fENDgtOO1VKJsookpFRbswgWaN8eNEQ/exec'; 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzW5q6kvfjGgaX6NvgRIINqnfpHteR0hVF-SKGuy7DsQEmIrazvzn3PLX71fQSFzYY94Q/exec'; 
+        
         let currentUser = {};
         let masterCausedBy = [];
         let masterSKU = {};
@@ -223,22 +252,28 @@
         let allTransactions = []; 
         let userNetwork = { ip: 'Unknown', location: 'Unknown' };
 
-        fetch('https://ipapi.co/json/').then(res => res.json()).then(data => { userNetwork.ip = data.ip; userNetwork.location = `${data.city}, ${data.country_name}`; }).catch(() => {});
+        // Fetch User IP
+        fetch('https://ipapi.co/json/')
+            .then(res => res.json())
+            .then(data => { 
+                userNetwork.ip = data.ip; 
+                userNetwork.location = `${data.city}, ${data.country_name}`; 
+            })
+            .catch(() => {});
 
+        // On Load Check Session
         window.onload = () => {
-            if (localStorage.getItem('adf_token') && localStorage.getItem('adf_user')) {
-                currentUser = JSON.parse(localStorage.getItem('adf_user'));
-                renderApp(); loadMasterData();
+            const token = localStorage.getItem('adf_token');
+            const userStr = localStorage.getItem('adf_user');
+            
+            if (token && userStr) {
+                currentUser = JSON.parse(userStr);
+                renderApp(); 
+                loadMasterData();
             }
         };
 
-        // NEW: Login with ENTER Key
-        function handleLoginEnter(event) {
-            if (event.key === "Enter") {
-                login();
-            }
-        }
-
+        // UI Tabs & Nav
         function switchTab(tabId) {
             document.getElementById('tabForm').classList.add('hidden');
             document.getElementById('tabHistory').classList.add('hidden');
@@ -257,99 +292,316 @@
             }
         }
 
-        function updateFileCount() {
-            const files = document.getElementById('photos').files;
-            document.getElementById('fileText').innerHTML = files.length > 0 ? `<span class="text-green-600">${files.length} Foto Siap Upload</span>` : `Ketuk untuk Kamera / Galeri`;
+        // Login Logic with Enter Key Support
+        function handleLoginEnter(event) {
+            if (event.key === "Enter") {
+                login();
+            }
         }
 
         function login() {
-            const nik = document.getElementById('nik').value, pw = document.getElementById('password').value;
-            if(!nik || !pw) return Swal.fire('Error', 'NIK & Password wajib diisi', 'error');
-            Swal.fire({ title: 'Logging in...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const nik = document.getElementById('nik').value;
+            const pw = document.getElementById('password').value;
+            
+            if (!nik || !pw) {
+                return Swal.fire('Error', 'NIK & Password wajib diisi', 'error');
+            }
+            
+            Swal.fire({ 
+                title: 'Logging in...', 
+                allowOutsideClick: false, 
+                didOpen: () => Swal.showLoading() 
+            });
 
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nik, password: pw, ip: userNetwork.ip, location: userNetwork.location }) })
-            .then(res => res.json()).then(res => {
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'login', 
+                    nik: nik, 
+                    password: pw, 
+                    ip: userNetwork.ip, 
+                    location: userNetwork.location 
+                }) 
+            })
+            .then(res => res.json())
+            .then(res => {
                 if(res.status === 'success') {
-                    localStorage.setItem('adf_token', res.token); localStorage.setItem('adf_user', JSON.stringify(res.user));
-                    currentUser = res.user; Swal.close(); renderApp(); loadMasterData();
-                } else Swal.fire('Gagal', res.message, 'error');
-            }).catch(e => {
+                    localStorage.setItem('adf_token', res.token); 
+                    localStorage.setItem('adf_user', JSON.stringify(res.user));
+                    currentUser = res.user; 
+                    
+                    Swal.close(); 
+                    renderApp(); 
+                    loadMasterData();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            })
+            .catch(e => {
                 Swal.fire('Error', 'Gagal Terhubung. Pastikan URL API Benar.', 'error');
             });
         }
 
-        function logout() { fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'logout', nik: currentUser.nik, token: localStorage.getItem('adf_token') }) }).finally(() => { localStorage.clear(); location.reload(); }); }
-
-        function renderApp() {
-            document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainScreen').classList.remove('hidden');
-            document.getElementById('userNameDisplay').innerText = currentUser.nama; document.getElementById('roleDisplay').innerText = currentUser.role; document.getElementById('placeDisplay').innerText = currentUser.place;
-            if (currentUser.role === 'Staff') { document.getElementById('navFormBtn').classList.remove('hidden'); switchTab('tabForm'); } else switchTab('tabHistory');
+        function logout() { 
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'logout', 
+                    nik: currentUser.nik, 
+                    token: localStorage.getItem('adf_token') 
+                }) 
+            }).finally(() => { 
+                localStorage.clear(); 
+                location.reload(); 
+            }); 
         }
 
+        function renderApp() {
+            document.getElementById('loginScreen').classList.add('hidden'); 
+            document.getElementById('mainScreen').classList.remove('hidden');
+            
+            document.getElementById('userNameDisplay').innerText = currentUser.nama; 
+            document.getElementById('roleDisplay').innerText = currentUser.role; 
+            document.getElementById('placeDisplay').innerText = currentUser.place;
+            
+            if (currentUser.role === 'Staff') { 
+                document.getElementById('navFormBtn').classList.remove('hidden'); 
+                switchTab('tabForm'); 
+            } else {
+                switchTab('tabHistory');
+            }
+        }
+
+        // Master Data & Form Fill Logic
         function loadMasterData() {
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getMasterData' }) }).then(r => r.json()).then(data => {
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'getMasterData' }) 
+            })
+            .then(r => r.json())
+            .then(data => {
                 if(data.status === 'success') {
-                    masterCausedBy = data.causedBy; masterSKU = data.masterSKU;
-                    const c = document.getElementById('causedBy'); c.innerHTML = '<option value="">-- Pilih --</option>'; masterCausedBy.forEach(i => c.innerHTML += `<option value="${i.causeName}">${i.causeName}</option>`);
-                    const p = document.getElementById('proposal'); p.innerHTML = '<option value="">-- Pilih --</option>'; data.proposals.forEach(pr => p.innerHTML += `<option value="${pr}">${pr}</option>`);
+                    masterCausedBy = data.causedBy; 
+                    masterSKU = data.masterSKU;
+                    
+                    const causeSelect = document.getElementById('causedBy'); 
+                    causeSelect.innerHTML = '<option value="">-- Pilih --</option>'; 
+                    masterCausedBy.forEach(i => {
+                        causeSelect.innerHTML += `<option value="${i.causeName}">${i.causeName}</option>`;
+                    });
+                    
+                    const propSelect = document.getElementById('proposal'); 
+                    propSelect.innerHTML = '<option value="">-- Pilih --</option>'; 
+                    data.proposals.forEach(pr => {
+                        propSelect.innerHTML += `<option value="${pr}">${pr}</option>`;
+                    });
                 }
             });
         }
 
         function checkSKU() {
             const skuVal = document.getElementById('sku').value.trim();
-            const els = ['desc', 'dept', 'commodity', 'price'].map(id => document.getElementById(id));
+            const descEl = document.getElementById('desc');
+            const deptEl = document.getElementById('dept');
+            const commEl = document.getElementById('commodity');
+            const priceEl = document.getElementById('price');
+            
             if (skuVal && masterSKU[skuVal]) {
-                const p = masterSKU[skuVal]; document.getElementById('sku').value = p.sku;
-                els[0].value = p.description||''; els[1].value = p.dept||''; els[2].value = p.commodity||''; els[3].value = p.price||0;
-                els.forEach(e => e.disabled = true);
-            } else if (skuVal) { els.forEach(e => e.disabled = false); } else { els.forEach(e => { e.value = ''; e.disabled = true; }); }
+                const p = masterSKU[skuVal]; 
+                document.getElementById('sku').value = p.sku;
+                
+                descEl.value = p.description || ''; 
+                deptEl.value = p.dept || ''; 
+                commEl.value = p.commodity || ''; 
+                priceEl.value = p.price || 0;
+                
+                descEl.disabled = true;
+                deptEl.disabled = true;
+                commEl.disabled = true;
+                priceEl.disabled = true;
+            } else if (skuVal) { 
+                descEl.disabled = false;
+                deptEl.disabled = false;
+                commEl.disabled = false;
+                priceEl.disabled = false;
+            } else { 
+                descEl.value = '';
+                deptEl.value = '';
+                commEl.value = '';
+                priceEl.value = '';
+                
+                descEl.disabled = true;
+                deptEl.disabled = true;
+                commEl.disabled = true;
+                priceEl.disabled = true;
+            }
         }
 
         function showCausedByInfo() {
             const val = document.getElementById('causedBy').value;
             if(!val) return;
+            
             const d = masterCausedBy.find(i => i.causeName === val);
-            if(d) Swal.fire({ title: d.causeName, html: `<div class="text-left"><p class="text-sm bg-gray-100 p-3 rounded mb-2">${d.keterangan}</p><p class="text-xs text-blue-600 font-bold bg-blue-50 p-2 rounded flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Resp: ${d.responsibility}</p></div>`});
+            
+            if(d) {
+                let htmlInfo = `
+                    <div class="text-left">
+                        <p class="text-sm bg-gray-100 p-3 rounded mb-2">${d.keterangan}</p>
+                        <p class="text-xs text-blue-600 font-bold bg-blue-50 p-2 rounded flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg> 
+                            Resp: ${d.responsibility}
+                        </p>
+                    </div>
+                `;
+                
+                Swal.fire({ 
+                    title: d.causeName, 
+                    html: htmlInfo,
+                    customClass: { popup: 'rounded-2xl glass-panel' }
+                });
+            }
         }
 
         function startScan() {
-            const r = document.getElementById('reader');
-            if(!r.classList.contains('hidden')) { html5QrCode.stop(); r.classList.add('hidden'); return; }
-            r.classList.remove('hidden'); html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10 }, txt => { document.getElementById('sku').value = txt; checkSKU(); html5QrCode.stop(); r.classList.add('hidden'); }, err => {}).catch(() => { r.classList.add('hidden'); });
-        }
-
-        async function submitForm() {
-            const payload = {
-                sku: document.getElementById('sku').value.trim(), deskripsi: document.getElementById('desc').value.trim(),
-                dept: document.getElementById('dept').value.trim(), commodity: document.getElementById('commodity').value.trim(),
-                price: document.getElementById('price').value, proposal: document.getElementById('proposal').value,
-                causedBy: document.getElementById('causedBy').value, reason: document.getElementById('reason').value.trim()
-            };
-            const files = document.getElementById('photos').files;
-            if(!payload.sku || !payload.deskripsi || !payload.proposal || !payload.causedBy || !payload.reason) return Swal.fire('Info', 'Data belum lengkap', 'warning');
-            if(files.length < 2 || files.length > 3) return Swal.fire('Info', 'Upload 2-3 foto.', 'warning');
-
-            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            let photosBase64 = [];
-            for(let f of files) photosBase64.push(await new Promise(res => { let r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(f); }));
-
-            const fp = { action: 'submitADF', nik: currentUser.nik, username: currentUser.username, role: currentUser.role, place: currentUser.place, token: localStorage.getItem('adf_token'), ip: userNetwork.ip, location: userNetwork.location, ...payload, qty: document.getElementById('qty').value, discountAmount: document.getElementById('discountAmount').value || 0, docNo: document.getElementById('docNo').value, photos: photosBase64 };
-
-            fetch(API_URL, { method: 'POST', body: JSON.stringify(fp) }).then(r => r.json()).then(res => {
-                if(res.status === 'success') {
-                    Swal.fire('Berhasil!', `No ADF:\n${res.transNo}`, 'success');
-                    ['sku','desc','dept','commodity','price','discountAmount','docNo','reason','proposal','causedBy','photos'].forEach(id => document.getElementById(id).value = '');
-                    ['desc','dept','commodity','price'].forEach(id => document.getElementById(id).disabled = true); updateFileCount();
-                } else Swal.fire('Gagal', res.message, 'error');
+            const reader = document.getElementById('reader');
+            if(!reader.classList.contains('hidden')) { 
+                if(html5QrCode) html5QrCode.stop(); 
+                reader.classList.add('hidden'); 
+                return; 
+            }
+            
+            reader.classList.remove('hidden'); 
+            html5QrCode = new Html5Qrcode("reader");
+            
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10 }, 
+                txt => { 
+                    document.getElementById('sku').value = txt; 
+                    checkSKU(); 
+                    html5QrCode.stop(); 
+                    reader.classList.add('hidden'); 
+                }, 
+                err => {}
+            ).catch(() => { 
+                reader.classList.add('hidden'); 
+                Swal.fire('Error', 'Kamera Gagal Diakses', 'error');
             });
         }
 
+        function updateFileCount() {
+            const files = document.getElementById('photos').files;
+            document.getElementById('fileText').innerHTML = files.length > 0 
+                ? `<span class="text-green-600">${files.length} Foto Siap Upload</span>` 
+                : `Ketuk untuk Kamera / Galeri`;
+        }
+
+        // Submit ADF Form
+        async function submitForm() {
+            const skuVal = document.getElementById('sku').value.trim();
+            const descVal = document.getElementById('desc').value.trim();
+            const deptVal = document.getElementById('dept').value.trim();
+            const commVal = document.getElementById('commodity').value.trim();
+            const priceVal = document.getElementById('price').value;
+            const propVal = document.getElementById('proposal').value;
+            const causeVal = document.getElementById('causedBy').value;
+            const reasonVal = document.getElementById('reason').value.trim();
+            const files = document.getElementById('photos').files;
+            
+            if(!skuVal || !descVal || !propVal || !causeVal || !reasonVal) {
+                return Swal.fire('Info', 'Data belum lengkap', 'warning');
+            }
+            if(files.length < 2 || files.length > 3) {
+                return Swal.fire('Info', 'Upload 2-3 foto.', 'warning');
+            }
+
+            Swal.fire({ 
+                title: 'Memproses...', 
+                allowOutsideClick: false, 
+                didOpen: () => Swal.showLoading() 
+            });
+            
+            let photosBase64 = [];
+            for(let i=0; i<files.length; i++) {
+                const b64 = await new Promise(res => { 
+                    let r = new FileReader(); 
+                    r.onload = e => res(e.target.result); 
+                    r.readAsDataURL(files[i]); 
+                });
+                photosBase64.push(b64);
+            }
+
+            const payload = { 
+                action: 'submitADF', 
+                nik: currentUser.nik, 
+                username: currentUser.username, 
+                role: currentUser.role, 
+                place: currentUser.place, 
+                token: localStorage.getItem('adf_token'), 
+                ip: userNetwork.ip, 
+                location: userNetwork.location, 
+                
+                sku: skuVal,
+                deskripsi: descVal,
+                dept: deptVal,
+                commodity: commVal,
+                price: priceVal,
+                proposal: propVal,
+                causedBy: causeVal,
+                reason: reasonVal,
+                
+                qty: document.getElementById('qty').value, 
+                discountAmount: document.getElementById('discountAmount').value || 0, 
+                docNo: document.getElementById('docNo').value, 
+                photos: photosBase64 
+            };
+
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify(payload) 
+            })
+            .then(r => r.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire('Berhasil!', `No ADF:\n${res.transNo}`, 'success');
+                    
+                    const fieldIds = ['sku','desc','dept','commodity','price','discountAmount','docNo','reason','proposal','causedBy','photos'];
+                    fieldIds.forEach(id => document.getElementById(id).value = '');
+                    
+                    document.getElementById('desc').disabled = true;
+                    document.getElementById('dept').disabled = true;
+                    document.getElementById('commodity').disabled = true;
+                    document.getElementById('price').disabled = true;
+                    
+                    updateFileCount();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            });
+        }
+
+        // History & Filter Logic
         function fetchHistory() {
-            document.getElementById('desktopTableBody').innerHTML = '<tr><td colspan="5" class="text-center p-4"><div class="animate-pulse flex flex-col items-center justify-center py-4"><div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div><div class="h-4 bg-gray-200 rounded w-1/3"></div></div></td></tr>';
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getTransactions', nik: currentUser.nik, token: localStorage.getItem('adf_token') }) })
-            .then(res => res.json()).then(res => { if(res.status === 'success') { allTransactions = res.data; applyFilters(); } });
+            let loaderHtml = '<tr><td colspan="5" class="text-center p-4"><div class="animate-pulse flex flex-col items-center justify-center py-4"><div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div><div class="h-4 bg-gray-200 rounded w-1/3"></div></div></td></tr>';
+            document.getElementById('desktopTableBody').innerHTML = loaderHtml;
+            
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'getTransactions', 
+                    nik: currentUser.nik, 
+                    token: localStorage.getItem('adf_token') 
+                }) 
+            })
+            .then(res => res.json())
+            .then(res => { 
+                if(res.status === 'success') { 
+                    allTransactions = res.data; 
+                    applyFilters(); 
+                } 
+            });
         }
 
         function applyFilters() {
@@ -357,19 +609,32 @@
             let sort = document.getElementById('sortSLA').value;
             
             let filtered = allTransactions.filter(i => 
-                i.TransNo.toLowerCase().includes(search) || i.SKU.toLowerCase().includes(search) || (i.Deskripsi||'').toLowerCase().includes(search)
+                (i.TransNo || '').toLowerCase().includes(search) || 
+                (i.SKU || '').toLowerCase().includes(search) || 
+                (i.Deskripsi || '').toLowerCase().includes(search)
             );
             
-            if(sort === 'SLA_DESC') filtered.sort((a,b) => b.SLA_Hours - a.SLA_Hours); // Terlama
-            else filtered.sort((a,b) => new Date(b.Date) - new Date(a.Date)); // Terbaru default Date creation
+            if(sort === 'SLA_DESC') {
+                filtered.sort((a,b) => b.SLA_Hours - a.SLA_Hours); // Terlama
+            } else {
+                filtered.sort((a,b) => new Date(b.Date) - new Date(a.Date)); // Terbaru
+            }
 
             renderHistory(filtered);
         }
 
         function renderHistory(data) {
-            const dtBody = document.getElementById('desktopTableBody'), mbBody = document.getElementById('mobileCardBody');
-            dtBody.innerHTML = ''; mbBody.innerHTML = '';
-            if (data.length === 0) { mbBody.innerHTML = '<div class="text-center p-8 text-gray-400 flex flex-col items-center"><svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>Tidak ada data ditemukan.</div>'; return; }
+            const dtBody = document.getElementById('desktopTableBody');
+            const mbBody = document.getElementById('mobileCardBody');
+            
+            dtBody.innerHTML = ''; 
+            mbBody.innerHTML = '';
+            
+            if (data.length === 0) { 
+                let emptySvg = '<svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>';
+                mbBody.innerHTML = `<div class="text-center p-8 text-gray-400 flex flex-col items-center">${emptySvg}Tidak ada data ditemukan.</div>`; 
+                return; 
+            }
 
             data.forEach(item => {
                 let badgeColor = 'bg-yellow-100 text-yellow-700';
@@ -377,6 +642,7 @@
                 if(item.Status.includes('SENDBACK')) badgeColor = 'bg-red-100 text-red-700';
                 
                 let slaText = item.Status === 'DONE_DEAL' ? '-' : (item.SLA_Hours > 24 ? Math.floor(item.SLA_Hours/24)+' Hari' : Math.floor(item.SLA_Hours)+' Jam');
+                
                 let isTask = false;
                 if(currentUser.role === 'Manager/Supervisor' && item.Status === 'PENDING_MGR') isTask = true;
                 if(currentUser.role === 'MSO' && item.Status === 'PENDING_MSO') isTask = true;
@@ -389,7 +655,13 @@
                 dtBody.innerHTML += `
                     <tr class="${rowClass}" onclick="viewDetail('${item.TransNo}')">
                         <td class="p-4 text-xs">${item.Date}</td>
-                        <td class="p-4"><p class="font-mono text-xs text-gray-500 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${item.TransNo}</p><p class="font-bold">${item.Place}</p></td>
+                        <td class="p-4">
+                            <p class="font-mono text-xs text-gray-500 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                ${item.TransNo}
+                            </p>
+                            <p class="font-bold">${item.Place}</p>
+                        </td>
                         <td class="p-4 max-w-xs truncate"><p class="font-bold">${item.SKU}</p><p class="text-xs text-gray-500">${item.Deskripsi}</p></td>
                         <td class="p-4"><span class="text-xs font-bold flex items-center gap-1 ${isTask ? 'text-red-600' : 'text-gray-500'}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>${slaText}</span></td>
                         <td class="p-4"><span class="px-2.5 py-1 rounded-md text-[10px] font-bold ${badgeColor}">${item.Status}</span></td>
@@ -400,16 +672,22 @@
                     <div onclick="viewDetail('${item.TransNo}')" class="${rowClass} relative p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-2">
                         ${indicator}
                         <div class="flex justify-between items-start">
-                            <div><p class="font-mono text-[10px] text-gray-400 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${item.TransNo}</p><p class="font-bold text-sm">${item.Place}</p></div>
+                            <div>
+                                <p class="font-mono text-[10px] text-gray-400 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${item.TransNo}</p>
+                                <p class="font-bold text-sm">${item.Place}</p>
+                            </div>
                             <span class="px-2 py-1 rounded-md text-[10px] font-bold ${badgeColor}">${item.Status}</span>
                         </div>
-                        <div><p class="font-bold text-sm">${item.Deskripsi}</p><p class="text-xs ${isTask ? 'text-red-500 font-semibold' : 'text-gray-500'} flex items-center gap-1 mt-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> SLA: ${slaText}</p></div>
+                        <div>
+                            <p class="font-bold text-sm">${item.Deskripsi}</p>
+                            <p class="text-xs ${isTask ? 'text-red-500 font-semibold' : 'text-gray-500'} flex items-center gap-1 mt-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> SLA: ${slaText}</p>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        // VIEW DETAILS & MODAL
+        // View Details & Pop-up Modal
         function viewDetail(transNo) {
             const item = allTransactions.find(t => t.TransNo === transNo);
             if(!item) return;
@@ -417,28 +695,77 @@
             document.getElementById('detailTransNo').innerHTML = `<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> ${item.TransNo}`;
             
             let photosHtml = '<p class="text-gray-400 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Tidak ada foto</p>';
+            
             if(item.Photos) {
                 const urls = item.Photos.split(',');
-                photosHtml = `<div class="flex gap-2 overflow-x-auto pb-2">` + urls.map(url => `
-                    <img src="${url}" class="h-24 w-24 object-cover rounded-xl border border-gray-200 photo-thumb shadow-sm" onclick="zoomImage('${url}')">
-                `).join('') + `</div>`;
+                let imgs = urls.map(url => `<img src="${url}" class="h-24 w-24 object-cover rounded-xl border border-gray-200 photo-thumb shadow-sm" onclick="zoomImage('${url}')">`).join('');
+                photosHtml = `<div class="flex gap-2 overflow-x-auto pb-2">${imgs}</div>`;
             }
 
-            let logHtml = item.HistoryLog ? item.HistoryLog.split('\n').map(l => l ? `<div class="pl-4 border-l-2 border-blue-400 py-1.5 text-xs text-gray-600 font-medium">${l}</div>` : '').join('') : '';
+            let logHtml = '';
+            if(item.HistoryLog) {
+                let lines = item.HistoryLog.split('\n');
+                logHtml = lines.map(l => l ? `<div class="pl-4 border-l-2 border-blue-400 py-1.5 text-xs text-gray-600 font-medium">${l}</div>` : '').join('');
+            }
 
-            document.getElementById('detailContent').innerHTML = `
+            let detailHtml = `
                 <div class="grid grid-cols-2 gap-y-3 gap-x-2 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">Status</p><p class="font-bold text-blue-600">${item.Status}</p></div>
-                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">Store / Tgl</p><p class="font-semibold">${item.Place} <br><span class="font-normal text-xs text-gray-500">${item.Date}</span></p></div>
-                    <div class="col-span-2"><p class="text-[10px] text-gray-400 uppercase font-bold">Barang</p><p class="font-bold">${item.Deskripsi} (${item.SKU})</p></div>
-                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">Proposal</p><p class="font-semibold">${item.Proposal}</p></div>
-                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">Caused By</p><p class="font-semibold">${item.CausedBy}</p></div>
-                    <div class="col-span-2"><p class="text-[10px] text-gray-400 uppercase font-bold">Reason / Alasan</p><p class="bg-gray-50 p-2 rounded-lg text-xs mt-1 border border-gray-100">${item.Reason}</p></div>
-                    ${item.Status === 'DONE_DEAL' ? `<div class="col-span-2 bg-green-50 p-3 rounded-lg flex items-start gap-2 border border-green-100"><svg class="w-5 h-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div><p class="text-[10px] text-green-700 uppercase font-bold">Buyer Feedback</p><p class="font-bold text-sm text-green-900">Ket: ${item.BuyerCausedBy\vert{}\vert{}'-'} \vert{} Apprv Disc: Rp${item.BuyerApproveDiscount||0}</p></div></div>` : ''}
-                </div>
-                <div class="mt-4"><p class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Bukti Foto (Ketuk untuk Zoom)</p>${photosHtml}</div>
-                <div class="mt-4"><p class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Riwayat Jejak (History Log)</p><div class="space-y-1 bg-gray-50 p-3 rounded-xl border border-gray-100">${logHtml}</div></div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">Status</p>
+                        <p class="font-bold text-blue-600">${item.Status}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">Store / Tgl</p>
+                        <p class="font-semibold">${item.Place} <br><span class="font-normal text-xs text-gray-500">${item.Date}</span></p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">Barang</p>
+                        <p class="font-bold">${item.Deskripsi} (${item.SKU})</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">Proposal</p>
+                        <p class="font-semibold">${item.Proposal}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">Caused By</p>
+                        <p class="font-semibold">${item.CausedBy}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">Reason / Alasan</p>
+                        <p class="bg-gray-50 p-2 rounded-lg text-xs mt-1 border border-gray-100">${item.Reason}</p>
+                    </div>
             `;
+
+            if(item.Status === 'DONE_DEAL') {
+                detailHtml += `
+                    <div class="col-span-2 bg-green-50 p-3 rounded-lg flex items-start gap-2 border border-green-100">
+                        <svg class="w-5 h-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div>
+                            <p class="text-[10px] text-green-700 uppercase font-bold">Buyer Feedback</p>
+                            <p class="font-bold text-sm text-green-900">Ket: ${item.BuyerCausedBy||'-'} | Apprv Disc: Rp ${item.BuyerApproveDiscount||0}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            detailHtml += `</div>
+                <div class="mt-4">
+                    <p class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> 
+                        Bukti Foto (Ketuk untuk Zoom)
+                    </p>
+                    ${photosHtml}
+                </div>
+                <div class="mt-4">
+                    <p class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                        Riwayat Jejak (History Log)
+                    </p>
+                    <div class="space-y-1 bg-gray-50 p-3 rounded-xl border border-gray-100">${logHtml}</div>
+                </div>
+            `;
+
+            document.getElementById('detailContent').innerHTML = detailHtml;
 
             let canAction = false;
             if(currentUser.role === 'Manager/Supervisor' && item.Status === 'PENDING_MGR') canAction = true;
@@ -449,8 +776,12 @@
             const actionDiv = document.getElementById('detailActionBtn');
             if(canAction) {
                 actionDiv.innerHTML = `
-                    <button onclick="executeAction('${item.TransNo}', 'APPROVE')" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/20 flex justify-center items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Setujui Task</button>
-                    <button onclick="executeAction('${item.TransNo}', 'SENDBACK')" class="flex-1 bg-red-100 text-red-700 font-bold py-3 rounded-xl hover:bg-red-200 flex justify-center items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Send Back</button>
+                    <button onclick="executeAction('${item.TransNo}', 'APPROVE')" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/20 flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Setujui
+                    </button>
+                    <button onclick="executeAction('${item.TransNo}', 'SENDBACK')" class="flex-1 bg-red-100 text-red-700 font-bold py-3 rounded-xl hover:bg-red-200 flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Sendback
+                    </button>
                 `;
             } else {
                 actionDiv.innerHTML = `<div class="w-full text-center text-gray-400 text-xs font-semibold py-2">Hanya bisa melihat riwayat (View Only)</div>`;
@@ -459,36 +790,100 @@
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
-        function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
+        function closeDetailModal() { 
+            document.getElementById('detailModal').classList.add('hidden'); 
+        }
 
         function zoomImage(url) {
-            Swal.fire({ imageUrl: url, imageAlt: 'Bukti Foto', width: 'auto', padding: 0, showConfirmButton: false, customClass: { popup: 'bg-transparent' }, backdrop: `rgba(0,0,0,0.9)` });
+            Swal.fire({ 
+                imageUrl: url, 
+                imageAlt: 'Bukti Foto', 
+                width: 'auto', 
+                padding: 0, 
+                showConfirmButton: false, 
+                customClass: { popup: 'bg-transparent' }, 
+                backdrop: `rgba(0,0,0,0.9)` 
+            });
         }
 
         function executeAction(transNo, actionType) {
             let isBuyerApprove = (currentUser.role === 'Buyer' && actionType === 'APPROVE');
-            let buyerInputs = isBuyerApprove ? `
-                <input type="text" id="bCause" class="ios-input mb-2 border-blue-200 focus:border-blue-500" placeholder="Feedback/Ket Buyer (Wajib)">
-                <input type="number" id="bDisc" class="ios-input border-blue-200 focus:border-blue-500" placeholder="Approved Discount (Rp)">
-            ` : '';
+            let buyerInputs = '';
+            
+            if (isBuyerApprove) {
+                buyerInputs = `
+                    <input type="text" id="bCause" class="ios-input mb-2 border-blue-200 focus:border-blue-500" placeholder="Feedback/Ket Buyer (Wajib)">
+                    <input type="number" id="bDisc" class="ios-input border-blue-200 focus:border-blue-500" placeholder="Approved Discount (Rp)">
+                `;
+            }
+            
+            let placeholderNote = actionType === 'SENDBACK' ? 'Wajib diisi jika Sendback...' : 'Opsional...';
+            
+            let formHtml = `
+                <div class="text-left mt-2">
+                    <label class="text-sm font-bold text-gray-700 block mb-1">Catatan Tambahan:</label>
+                    <textarea id="actNote" class="ios-input h-20 mb-3" placeholder="${placeholderNote}"></textarea>
+                    ${buyerInputs}
+                </div>
+            `;
             
             Swal.fire({
                 title: actionType === 'APPROVE' ? 'Setujui Pengajuan?' : 'Send Back Pengajuan?',
-                html: `<div class="text-left mt-2"><label class="text-sm font-bold text-gray-700 block mb-1">Catatan Tambahan:</label><textarea id="actNote" class="ios-input h-20 mb-3" placeholder="${actionType==='SENDBACK'?'Wajib diisi jika Sendback...':'Opsional...'}"></textarea>${buyerInputs}</div>`,
-                showCancelButton: true, confirmButtonText: 'Proses Data', confirmButtonColor: actionType === 'APPROVE'?'#3b82f6':'#ef4444',
+                html: formHtml,
+                showCancelButton: true, 
+                confirmButtonText: 'Proses Data', 
+                confirmButtonColor: actionType === 'APPROVE' ? '#3b82f6' : '#ef4444',
                 customClass: { popup: 'rounded-3xl glass-panel' },
                 preConfirm: () => {
                     const note = document.getElementById('actNote').value;
-                    if(actionType === 'SENDBACK' && !note) { Swal.showValidationMessage('Catatan wajib diisi!'); return false; }
-                    return { note, bCause: document.getElementById('bCause')?.value||'', bDisc: document.getElementById('bDisc')?.value||0 };
+                    let bCauseStr = '';
+                    let bDiscVal = 0;
+                    
+                    if (isBuyerApprove) {
+                        bCauseStr = document.getElementById('bCause').value;
+                        bDiscVal = document.getElementById('bDisc').value;
+                    }
+                    
+                    if(actionType === 'SENDBACK' && !note) { 
+                        Swal.showValidationMessage('Catatan wajib diisi!'); 
+                        return false; 
+                    }
+                    return { 
+                        note: note, 
+                        bCause: bCauseStr, 
+                        bDisc: bDiscVal 
+                    };
                 }
             }).then(r => {
                 if(r.isConfirmed) {
                     Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', nik: currentUser.nik, username: currentUser.username, role: currentUser.role, token: localStorage.getItem('adf_token'), transNo: transNo, actionStatus: actionType, notes: r.value.note, buyerCausedBy: r.value.bCause, buyerApproveDiscount: r.value.bDisc, ip: userNetwork.ip, location: userNetwork.location }) })
-                    .then(res => res.json()).then(res => {
-                        if(res.status === 'success') { Swal.fire('Sukses', 'Status tiket berhasil diperbarui.', 'success'); closeDetailModal(); fetchHistory(); }
-                        else Swal.fire('Error', res.message, 'error');
+                    
+                    fetch(API_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ 
+                            action: 'updateStatus', 
+                            nik: currentUser.nik, 
+                            username: currentUser.username, 
+                            role: currentUser.role, 
+                            token: localStorage.getItem('adf_token'), 
+                            transNo: transNo, 
+                            actionStatus: actionType, 
+                            notes: r.value.note, 
+                            buyerCausedBy: r.value.bCause, 
+                            buyerApproveDiscount: r.value.bDisc, 
+                            ip: userNetwork.ip, 
+                            location: userNetwork.location 
+                        }) 
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if(res.status === 'success') { 
+                            Swal.fire('Sukses', 'Status tiket berhasil diperbarui.', 'success'); 
+                            closeDetailModal(); 
+                            fetchHistory(); 
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
                     });
                 }
             });
