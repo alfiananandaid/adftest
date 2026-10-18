@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADF Enterprise System</title>
+    <!-- Tailwind CSS untuk Styling Modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 untuk Pop-up Modern -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- HTML5 QRCode Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        /* Modern iOS Theme */
+        body { background-color: #f2f2f7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 24px rgba(0,0,0,0.04); }
+        .ios-input { background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; padding: 12px; outline: none; transition: border 0.3s; width: 100%; }
+        .ios-input:focus { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
+        .ios-input:disabled { background: #f9f9f9; color: #8e8e93; border-color: #e5e5ea; }
+        .ios-btn { background: #007aff; color: white; border-radius: 10px; padding: 12px; font-weight: 600; transition: transform 0.1s; text-align: center; }
+        .ios-btn:active { transform: scale(0.96); }
+        .ios-btn-danger { background: #ff3b30; }
+        .ios-btn-success { background: #34c759; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen text-gray-800 p-4">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="glass-card w-full max-w-md p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold tracking-tight">ADF Portal</h1>
+            <p class="text-sm text-gray-500 mt-1">Sign in with your NIK</p>
+        </div>
+        <div class="space-y-4">
+            <input type="text" id="nik" class="ios-input" placeholder="NIK">
+            <input type="password" id="password" class="ios-input" placeholder="Password">
+            <button onclick="login()" class="ios-btn w-full mt-4 shadow-md">Sign In</button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SCREEN (Hidden by default) -->
+    <div id="dashboardScreen" class="hidden w-full max-w-4xl glass-card p-6 min-h-[80vh]">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800" id="userNameDisplay">Welcome</h2>
+                <div class="mt-2 flex gap-2">
+                    <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold" id="roleDisplay">Role</span>
+                    <span class="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded-full font-semibold" id="placeDisplay">Store</span>
+                </div>
+            </div>
+            <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-4 py-2 rounded-xl hover:bg-red-100 transition-colors">Log Out</button>
+        </div>
+
+        <!-- STAFF: INPUT FORM -->
+        <div id="staffMenu" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h3 class="font-bold text-lg text-blue-900">Buat Pengajuan ADF Baru</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Row 1: SKU/KLS & Scanner -->
+                <div class="col-span-1 md:col-span-2">
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Scan / Input SKU atau KLS</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="sku" class="ios-input font-mono" placeholder="Ketik SKU/KLS lalu Enter / Tap Scan" onchange="checkSKU()">
+                        <button onclick="startScan()" class="bg-gray-800 text-white px-4 rounded-xl shadow-sm hover:bg-gray-700 transition-colors flex items-center justify-center flex-shrink-0">
+                            📷 Scan
+                        </button>
+                    </div>
+                </div>
+                <!-- Div for QR Scanner -->
+                <div id="reader" class="hidden w-full col-span-1 md:col-span-2 rounded-xl overflow-hidden shadow-inner bg-black"></div>
+                
+                <!-- Row 2: Deskripsi & Details (Bisa Auto-fill atau Manual) -->
+                <div class="col-span-1 md:col-span-2">
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Deskripsi Produk</label>
+                    <input type="text" id="desc" class="ios-input" disabled placeholder="Isi Deskripsi Barang">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Department</label>
+                    <input type="text" id="dept" class="ios-input" disabled placeholder="Isi Department">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Commodity</label>
+                    <input type="text" id="commodity" class="ios-input" disabled placeholder="Isi Commodity">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Price (Harga Satuan Rp)</label>
+                    <input type="number" id="price" class="ios-input" disabled placeholder="0">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Quantity (Qty)</label>
+                    <input type="number" id="qty" class="ios-input" placeholder="1" min="1" value="1">
+                </div>
+
+                <!-- Row 3: Pengajuan Details -->
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Proposal</label>
+                    <select id="proposal" class="ios-input bg-white"></select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Discount Amount (Rp)</label>
+                    <input type="number" id="discountAmount" class="ios-input" placeholder="Isi jika ada discount">
+                </div>
+
+                <!-- Row 4: Caused By & Doc No -->
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Caused By</label>
+                    <div class="flex gap-2">
+                        <select id="causedBy" class="ios-input bg-white">
+                            <option value="">-- Loading Data --</option>
+                        </select>
+                        <button type="button" onclick="showCausedByInfo()" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-semibold hover:bg-blue-700 shadow-sm active:scale-95 flex-shrink-0">
+                            ℹ️ Info
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">No Doc (LPPB/DO/SR)</label>
+                    <input type="text" id="docNo" class="ios-input" placeholder="Isi jika ada (Optional)">
+                </div>
+                
+                <div class="col-span-1 md:col-span-2">
+                    <label class="text-xs font-semibold text-gray-500 mb-1 block">Alasan / Reason (Detail)</label>
+                    <textarea id="reason" class="ios-input h-24 resize-none" placeholder="Tuliskan alasan pengajuan..."></textarea>
+                </div>
+
+                <!-- Row 5: Photos -->
+                <div class="col-span-1 md:col-span-2 p-4 bg-gray-50 rounded-xl border border-gray-200 border-dashed">
+                    <label class="text-sm font-semibold text-gray-700 mb-2 block">Upload Bukti Foto (Min 2, Max 3)</label>
+                    <input type="file" id="photos" class="ios-input bg-white p-2" multiple accept="image/*">
+                    <p class="text-xs text-gray-400 mt-2">*Hanya JPG/PNG. Pastikan foto terlihat jelas.</p>
+                </div>
+            </div>
+            
+            <button onclick="submitForm()" class="ios-btn w-full shadow-lg mt-4 text-lg py-4">Kirim Pengajuan ADF</button>
+        </div>
+
+        <!-- APPROVAL & HISTORY MENU -->
+        <div id="approvalMenu" class="mt-10 border-t pt-8">
+            <h3 class="font-bold text-xl mb-4 text-gray-800">Task & History Approval</h3>
+            <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gray-100 text-gray-600 font-semibold border-b">
+                        <tr>
+                            <th class="p-4">Trans No</th>
+                            <th class="p-4">Store</th>
+                            <th class="p-4">SKU / Item</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable" class="divide-y divide-gray-100">
+                        <tr>
+                            <td class="p-4 font-mono text-xs text-gray-500">ADF/T327/2026/10/0001</td>
+                            <td class="p-4 font-semibold">T327</td>
+                            <td class="p-4">Laptop Asus - Defect</td>
+                            <td class="p-4"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md text-xs font-bold">PENDING_MGR</span></td>
+                            <td class="p-4 text-center">
+                                <button onclick="actionApproval('ADF/T327/2026/10/0001')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-100">Proses</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="p-4 text-center text-xs text-gray-400">Data tabel akan dimuat dari Backend...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ======================================================================
+        // KONFIGURASI UTAMA
+        // ======================================================================
+        const API_URL = 'TARUH_URL_WEB_APP_GAS_ANDA_DISINI'; 
+        
+        let currentUser = {};
+        let masterCausedBy = [];
+        let masterSKU = {};
+        let proposalsData = [];
+        let html5QrCode;
+
+        // Fetch User IP and Location for Audit Log
+        let userNetwork = { ip: 'Unknown', location: 'Unknown' };
+        fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
+            userNetwork.ip = data.ip;
+            userNetwork.location = `${data.city}, ${data.country_name}`;
+        }).catch(e => console.log('IP fetch failed, using default.'));
+
+        // Cek Local Storage jika sudah login
+        window.onload = () => {
+            const token = localStorage.getItem('adf_token');
+            const user = localStorage.getItem('adf_user');
+            if (token && user) {
+                currentUser = JSON.parse(user);
+                renderDashboard();
+                loadMasterData();
+            }
+        };
+
+        // ======================================================================
+        // 1. AUTHENTICATION (LOGIN & LOGOUT)
+        // ======================================================================
+        function login() {
+            const nik = document.getElementById('nik').value;
+            const pw = document.getElementById('password').value;
+            
+            if(!nik || !pw) return Swal.fire('Error', 'NIK dan Password wajib diisi', 'error');
+
+            Swal.fire({ title: 'Signing in...', text: 'Authenticating credentials', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', nik: nik, password: pw, ip: userNetwork.ip, location: userNetwork.location })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    localStorage.setItem('adf_token', res.token);
+                    localStorage.setItem('adf_user', JSON.stringify(res.user));
+                    currentUser = res.user;
+                    Swal.close();
+                    renderDashboard();
+                    loadMasterData();
+                } else {
+                    Swal.fire('Login Gagal', res.message, 'error');
+                }
+            }).catch(err => Swal.fire('Error', 'Terjadi kesalahan jaringan', 'error'));
+        }
+
+        function logout() {
+            Swal.fire({ title: 'Logging out...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'logout', nik: currentUser.nik, token: localStorage.getItem('adf_token') })
+            }).then(() => {
+                localStorage.removeItem('adf_token');
+                localStorage.removeItem('adf_user');
+                location.reload();
+            }).catch(() => {
+                localStorage.clear();
+                location.reload();
+            });
+        }
+
+        function renderDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            
+            document.getElementById('userNameDisplay').innerText = `Halo, ${currentUser.nama}`;
+            document.getElementById('roleDisplay').innerText = currentUser.role;
+            document.getElementById('placeDisplay').innerText = currentUser.place;
+
+            if (currentUser.role === 'Staff') {
+                document.getElementById('staffMenu').classList.remove('hidden');
+            }
+        }
+
+        // ======================================================================
+        // 2. DATA MASTER & UI LOGIC (INPUT MANUAL & AUTO-FILL)
+        // ======================================================================
+        function loadMasterData() {
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getMasterData' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    masterCausedBy = data.causedBy;
+                    masterSKU = data.masterSKU;
+                    proposalsData = data.proposals;
+                    
+                    // Populate Dropdown Caused By
+                    const causeSelect = document.getElementById('causedBy');
+                    causeSelect.innerHTML = '<option value="">-- Pilih Caused By --</option>';
+                    masterCausedBy.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.causeName;
+                        opt.textContent = item.causeName;
+                        causeSelect.appendChild(opt);
+                    });
+
+                    // Populate Dropdown Proposals
+                    const propSelect = document.getElementById('proposal');
+                    propSelect.innerHTML = '<option value="">-- Pilih Proposal --</option>';
+                    proposalsData.forEach(prop => {
+                        const opt = document.createElement('option');
+                        opt.value = prop;
+                        opt.textContent = prop;
+                        propSelect.appendChild(opt);
+                    });
+                }
+            })
+            .catch(err => console.error('Gagal memuat master data:', err));
+        }
+
+        // Fungsi Auto-fill & Toggle Input Manual jika SKU/KLS Tidak Ada
+        function checkSKU() {
+            const skuInput = document.getElementById('sku').value.trim();
+            const descEl = document.getElementById('desc');
+            const deptEl = document.getElementById('dept');
+            const commEl = document.getElementById('commodity');
+            const priceEl = document.getElementById('price');
+
+            if (skuInput && masterSKU[skuInput]) {
+                const product = masterSKU[skuInput];
+                
+                // Ubah inputan menjadi SKU utama jika di-scan via KLS
+                document.getElementById('sku').value = product.sku; 
+                
+                // Auto-fill field & Kunci (Disable)
+                descEl.value = product.description || '';
+                deptEl.value = product.dept || '';
+                commEl.value = product.commodity || '';
+                priceEl.value = product.price || 0;
+
+                descEl.disabled = true;
+                deptEl.disabled = true;
+                commEl.disabled = true;
+                priceEl.disabled = true;
+                
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Produk Ditemukan di Master Data', showConfirmButton: false, timer: 1500 });
+            } else if (skuInput !== '') {
+                // Jika SKU/KLS tidak ditemukan di Master Data -> Buka Akses Input Manual
+                descEl.disabled = false;
+                deptEl.disabled = false;
+                commEl.disabled = false;
+                priceEl.disabled = false;
+
+                Swal.fire({ 
+                    toast: true, 
+                    position: 'top-end', 
+                    icon: 'info', 
+                    title: 'SKU/KLS Tidak Ditemukan', 
+                    text: 'Silakan isi Deskripsi, Dept, Commodity, & Price secara manual.', 
+                    showConfirmButton: false, 
+                    timer: 3000 
+                });
+            } else {
+                // Jika input dikosongkan
+                descEl.value = '';
+                deptEl.value = '';
+                commEl.value = '';
+                priceEl.value = '';
+                
+                descEl.disabled = true;
+                deptEl.disabled = true;
+                commEl.disabled = true;
+                priceEl.disabled = true;
+            }
+        }
+
+        // Pop-up Info Caused By
+        function showCausedByInfo() {
+            const selectedCause = document.getElementById('causedBy').value;
+            if(!selectedCause) {
+                return Swal.fire({ icon: 'info', title: 'Pilih Caused By', text: 'Silakan pilih opsi Caused By terlebih dahulu.', confirmButtonColor: '#007aff' });
+            }
+            
+            const detail = masterCausedBy.find(item => item.causeName === selectedCause);
+            if(detail) {
+                Swal.fire({
+                    title: `<span class="text-lg font-bold text-gray-800">${detail.causeName}</span>`,
+                    html: `
+                        <div class="text-left space-y-3 text-sm mt-2">
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                                <span class="font-bold text-gray-700 block mb-1">📝 Keterangan:</span>
+                                <p class="text-gray-600 leading-relaxed">${detail.keterangan.replace(/\n/g, '<br>')}</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                                <span class="font-bold text-blue-900 block mb-1">🛡️ Responsibility:</span>
+                                <span class="inline-block px-2.5 py-1 bg-blue-100 text-blue-800 font-semibold rounded-lg text-xs">${detail.responsibility}</span>
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#007aff',
+                    customClass: { popup: 'rounded-2xl glass-card' }
+                });
+            }
+        }
+
+        // ======================================================================
+        // 3. QR SCANNER (HTML5-QRCode)
+        // ======================================================================
+        function startScan() {
+            const readerDiv = document.getElementById('reader');
+            if (!readerDiv.classList.contains('hidden')) {
+                if(html5QrCode) html5QrCode.stop().catch(err => console.log(err));
+                readerDiv.classList.add('hidden');
+                return;
+            }
+
+            readerDiv.classList.remove('hidden');
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: {width: 250, height: 250} },
+                (decodedText) => {
+                    document.getElementById('sku').value = decodedText;
+                    checkSKU(); // Trigger Auto-fill / Input manual
+                    html5QrCode.stop();
+                    readerDiv.classList.add('hidden');
+                },
+                (errorMessage) => { /* Ignore constant scanning errors */ }
+            ).catch(err => {
+                Swal.fire('Error', 'Kamera tidak dapat diakses', 'error');
+                readerDiv.classList.add('hidden');
+            });
+        }
+
+        // ======================================================================
+        // 4. SUBMIT ADF (STAFF)
+        // ======================================================================
+        async function submitForm() {
+            // Validasi Input
+            const sku = document.getElementById('sku').value.trim();
+            const desc = document.getElementById('desc').value.trim();
+            const dept = document.getElementById('dept').value.trim();
+            const commodity = document.getElementById('commodity').value.trim();
+            const price = document.getElementById('price').value;
+            const proposal = document.getElementById('proposal').value;
+            const causedBy = document.getElementById('causedBy').value;
+            const reason = document.getElementById('reason').value.trim();
+            const files = document.getElementById('photos').files;
+
+            if(!sku || !desc || !dept || !commodity || !price || !proposal || !causedBy || !reason) {
+                return Swal.fire('Data Belum Lengkap', 'Pastikan SKU, Deskripsi, Dept, Commodity, Price, Proposal, Caused By, dan Reason telah diisi.', 'warning');
+            }
+            if(files.length < 2 || files.length > 3) {
+                return Swal.fire('Upload Foto', 'Harap upload minimal 2 dan maksimal 3 foto.', 'warning');
+            }
+            
+            Swal.fire({ title: 'Memproses Pengajuan...', html: 'Mengunggah foto dan menyimpan data.<br>Mohon tunggu sebentar.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // Convert Photos to Base64
+            let photosBase64 = [];
+            for(let file of files) {
+                const base64 = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+                photosBase64.push(base64);
+            }
+
+            const payload = {
+                action: 'submitADF',
+                nik: currentUser.nik,
+                username: currentUser.username,
+                role: currentUser.role,
+                place: currentUser.place,
+                token: localStorage.getItem('adf_token'),
+                ip: userNetwork.ip,
+                location: userNetwork.location,
+                sku: sku,
+                deskripsi: desc,
+                dept: dept,
+                commodity: commodity,
+                price: price,
+                qty: document.getElementById('qty').value,
+                proposal: proposal,
+                discountAmount: document.getElementById('discountAmount').value || 0,
+                promoAmount: 0,
+                causedBy: causedBy,
+                docNo: document.getElementById('docNo').value,
+                reason: reason,
+                photos: photosBase64
+            };
+
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify(payload) 
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: `Pengajuan ADF tersimpan dengan Nomor:\n${res.transNo}`,
+                        confirmButtonColor: '#007aff'
+                    }).then(() => {
+                        // Reset Form
+                        document.getElementById('sku').value = '';
+                        document.getElementById('desc').value = '';
+                        document.getElementById('dept').value = '';
+                        document.getElementById('commodity').value = '';
+                        document.getElementById('price').value = '';
+                        document.getElementById('qty').value = '1';
+                        document.getElementById('discountAmount').value = '';
+                        document.getElementById('docNo').value = '';
+                        document.getElementById('reason').value = '';
+                        document.getElementById('proposal').value = '';
+                        document.getElementById('causedBy').value = '';
+                        document.getElementById('photos').value = '';
+
+                        // Reset Disable State
+                        document.getElementById('desc').disabled = true;
+                        document.getElementById('dept').disabled = true;
+                        document.getElementById('commodity').disabled = true;
+                        document.getElementById('price').disabled = true;
+                    });
+                } else {
+                    Swal.fire('Gagal Menyimpan', res.message, 'error');
+                }
+            }).catch(err => Swal.fire('Error', 'Koneksi ke server gagal', 'error'));
+        }
+
+        // ======================================================================
+        // 5. APPROVAL ACTION (Manager, MSO, Buyer, Staff Rebuttal)
+        // ======================================================================
+        function actionApproval(transNo) {
+            let htmlForm = `
+                <div class="text-left space-y-3 mt-4">
+                    <label class="text-sm font-semibold">Tindakan:</label>
+                    <select id="actionSelect" class="ios-input bg-white" onchange="toggleBuyerInputs()">
+                        <option value="APPROVE">Approve</option>
+                        <option value="SENDBACK">Send Back</option>
+                        ${currentUser.role === 'Staff' ? '<option value="REBUTTAL">Bantah / Ajukan Kembali</option>' : ''}
+                    </select>
+                    
+                    <div id="buyerInputs" class="${currentUser.role === 'Buyer' ? 'block' : 'hidden'} space-y-3 mt-3">
+                        <label class="text-sm font-semibold">Buyer Feedback (Caused By):</label>
+                        <input type="text" id="buyerCause" class="ios-input" placeholder="Feedback Caused By">
+                        <label class="text-sm font-semibold">Approved Discount:</label>
+                        <input type="number" id="buyerDisc" class="ios-input" placeholder="0">
+                    </div>
+
+                    <label class="text-sm font-semibold mt-3 block">Catatan / Keterangan:</label>
+                    <textarea id="actionNotes" class="ios-input h-20" placeholder="Tuliskan alasan approve/sendback..."></textarea>
+                </div>
+            `;
+
+            Swal.fire({
+                title: `Proses Approval`,
+                html: htmlForm,
+                showCancelButton: true,
+                confirmButtonText: 'Submit Tindakan',
+                confirmButtonColor: '#007aff',
+                cancelButtonColor: '#ff3b30',
+                preConfirm: () => {
+                    const action = document.getElementById('actionSelect').value;
+                    const notes = document.getElementById('actionNotes').value;
+                    const bCause = document.getElementById('buyerCause') ? document.getElementById('buyerCause').value : '';
+                    const bDisc = document.getElementById('buyerDisc') ? document.getElementById('buyerDisc').value : 0;
+                    
+                    if(action === 'SENDBACK' && !notes) {
+                        Swal.showValidationMessage('Catatan wajib diisi jika Send Back');
+                        return false;
+                    }
+                    return { action, notes, bCause, bDisc };
+                }
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    processUpdateStatus(transNo, result.value);
+                }
+            });
+        }
+
+        function toggleBuyerInputs() {
+            const action = document.getElementById('actionSelect').value;
+            const buyerDiv = document.getElementById('buyerInputs');
+            if (buyerDiv) {
+                if (currentUser.role === 'Buyer' && action === 'APPROVE') {
+                    buyerDiv.classList.remove('hidden');
+                } else {
+                    buyerDiv.classList.add('hidden');
+                }
+            }
+        }
+
+        function processUpdateStatus(transNo, val) {
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'updateStatus',
+                    nik: currentUser.nik,
+                    username: currentUser.username,
+                    role: currentUser.role,
+                    token: localStorage.getItem('adf_token'),
+                    ip: userNetwork.ip,
+                    location: userNetwork.location,
+                    transNo: transNo,
+                    actionStatus: val.action,
+                    notes: val.notes,
+                    buyerCausedBy: val.bCause,
+                    buyerApproveDiscount: val.bDisc
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire('Berhasil!', `Status tiket berubah menjadi:\n${res.newStatus}`, 'success');
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            }).catch(() => Swal.fire('Error', 'Gagal memproses data.', 'error'));
+        }
+    </script>
+</body>
+</html>
